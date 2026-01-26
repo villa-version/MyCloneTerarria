@@ -1,0 +1,70 @@
+# Build directories
+build/
+cmake-build-*/
+out/
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+CMakeScripts/
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+_deps
+
+# C++ compiled files
+*.o
+*.obj
+*.exe
+*.out
+*.app
+*.i*86
+*.x86_64
+*.hex
+*.a
+*.lib
+*.so
+*.dylib
+*.dll
+
+# Qt Creator
+*.pro.user
+*.pro.user.*
+*.autosave
+CMakeLists.txt.user
+CMakeLists.txt.user.*
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Visual Studio
+.vs/
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+*.sln
+
+# Executables
+MyCloneTerraria
+MyCloneTerraria.exe
+
+# Logs and databases
+*.log
+*.sql
+*.sqlite
+
+# OS files
+Thumbs.db
+.DS_Store
+desktop.ini
+
+# Backup files
+*.bak
+*.backup
+*~

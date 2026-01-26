@@ -23,7 +23,7 @@ set(SOURCES
 set(HEADERS
     headers/App.h
 	headers/config.h
-	headers/world.h
+	headers/World.h
 	headers/player.h
 	headers/Vector2.h
 	headers/Background.h
@@ -44,7 +44,10 @@ target_include_directories(${PROJECT_NAME} PRIVATE headers)
 # Линкуем Qt
 target_link_libraries(${PROJECT_NAME} Qt5::Core Qt5::Widgets)
 
-set(SFML_DIR "D:/SFML-2.5.1/lib/cmake/SFML")
+# Set SFML directory for Windows, Linux will find it automatically
+if(WIN32)
+    set(SFML_DIR "D:/SFML-2.5.1/lib/cmake/SFML")
+endif()
 
 find_package(SFML 2.5 COMPONENTS graphics window system REQUIRED)
 

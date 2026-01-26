@@ -10,8 +10,8 @@ void App::init() {
 }
 
 void App::loadAllTextures() {
-    textureManager.load("background", "E:/Docs/Docs/MyCloneTerraria/assets/textures/background.jpg");
-    textureManager.load("player", "E:/Docs/Docs/MyCloneTerraria/assets/textures/player.png");
+    textureManager.load("background", "../assets/textures/background.jpg");
+    textureManager.load("player", "../assets/textures/player.png");
 }
 
 
