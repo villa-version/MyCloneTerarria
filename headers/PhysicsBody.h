@@ -6,6 +6,7 @@
 struct PhysicsBody {
 
     Vector2 velocity;
+    Vector2 acceleration;
     bool isOnGround;
 
 };

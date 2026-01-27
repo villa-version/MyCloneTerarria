@@ -11,7 +11,6 @@ class App {
     TextureManager textureManager;
     World world;
     InputManager input;
-    sf::Clock clock;
 
 public:
     App();

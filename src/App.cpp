@@ -5,6 +5,7 @@ App::App() : window(sf::VideoMode(Config::SCREEN_WIDTH, Config::SCREEN_HEIGHT), 
     world(textureManager) {}
 
 void App::init() {
+    window.setFramerateLimit(Config::FPS);
     loadAllTextures();
     world.init();
 }
@@ -18,8 +19,6 @@ void App::loadAllTextures() {
 int App::run() {
     while (window.isOpen())
     {
-        sf::Time dt = clock.restart();
-        float deltaTime = dt.asMicroseconds();
 
         sf::Event event;
         while (window.pollEvent(event))
@@ -30,7 +29,7 @@ int App::run() {
 
         window.clear(sf::Color::White);
         input.update();
-        world.update(input, deltaTime);
+        world.update(input);
         world.render(window);
         window.display();
     }

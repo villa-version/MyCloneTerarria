@@ -5,11 +5,9 @@
 
 class PhysicsSystem {
 
-    const float gravity = 9.8;
-
-    Player& player;
+    const double gravity = 98*2;
+    const double friction = 0.99;
 
 public:
-    PhysicsSystem(Player& player);
-    void update();
+    void update(Player& player);
 };

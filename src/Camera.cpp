@@ -4,7 +4,7 @@
 Camera::Camera(sf::Vector2f pos, sf::Vector2f size) : view(pos, size) {}
 
 void Camera::update(const sf::Vector2f pos) {
-    view.setCenter(pos.x, pos.y);
+    view.setCenter(pos.x + 25, pos.y + 32.5);
 }
 
 const sf::View& Camera::getView() const {

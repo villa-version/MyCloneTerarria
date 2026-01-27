@@ -4,8 +4,9 @@
 #include <config.h>
 #include <Transform.h>
 #include <TextureManager.h>
-#include <utility>
 #include <InputManager.h>
+#include <GameTime.h>
+#include <cmath>
 
 
 Player::Player(const Transform& transform, TextureManager& textureManager)
@@ -25,18 +26,33 @@ void Player::setTexture() {
 
 }
 
-void Player::update(InputManager& input, float dt) {
+void Player::update(InputManager& input) {
     control(input);
+
+    physics.velocity.x += physics.acceleration.x * GameTime::deltaTimeSeconds;
+    physics.velocity.y += physics.acceleration.y * GameTime::deltaTimeSeconds;
+
+    transform.position.x += physics.velocity.x * GameTime::deltaTimeSeconds;
+    transform.position.y += physics.velocity.y * GameTime::deltaTimeSeconds;
+
     sprite.setPosition(transform.position.x, transform.position.y);
 
-    transform.position.x += physics.velocity.x * dt;
-    transform.position.y += physics.velocity.y * dt;
 }
 
 void Player::control(InputManager& input) {
-    if (input.left) {physics.velocity.x = -0.001;}
-    if (input.right) {physics.velocity.x = 0.001;}
-
+    if (input.left) {
+        physics.acceleration.x = -1000;
+    }
+    else if (input.right) {
+        physics.acceleration.x = 1000;
+    } else {
+         physics.acceleration.x = 0;
+    }
+    if (input.jump) {
+        physics.acceleration.y = -100;
+    } else {
+         physics.acceleration.y = 0;
+    }
 }
 
 void Player::draw(sf::RenderWindow& window) {
@@ -44,14 +60,27 @@ void Player::draw(sf::RenderWindow& window) {
 }
 
 
-const sf::Vector2f Player::getPosition() const{
+const sf::Vector2f Player::getPosition() const {
     return sf::Vector2f(transform.position.x, transform.position.y);
 }
 
-void Player::setVelocityX(float newVelX) {
+void Player::setPosition(const sf::Vector2f newPos) {
+    transform.position.x = newPos.x;
+    transform.position.x = newPos.y;
+}
+
+void Player::setVelocityX(double newVelX) {
     physics.velocity.x = newVelX;
 }
 
-void Player::setVelocityY(float newVelY) {
+void Player::setVelocityY(double newVelY) {
     physics.velocity.y = newVelY;
+}
+
+float Player::getVelocityX() const {
+    return physics.velocity.x;
+}
+
+float Player::getVelocityY() const {
+    return physics.velocity.y;
 }

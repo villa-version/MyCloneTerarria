@@ -18,6 +18,7 @@ set(SOURCES
 	src/Camera.cpp
 	src/InputManager.cpp
 	src/PhysicsSystem.cpp
+	src/GameTime.cpp
 )
 
 set(HEADERS
@@ -33,6 +34,7 @@ set(HEADERS
 	headers/InputManager.h
 	headers/PhysicsBody.h
 	headers/PhysicsSystem.h
+	headers/GameTime.h
 )
 
 # Создаём исполняемый файл
