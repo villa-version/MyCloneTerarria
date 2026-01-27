@@ -26,7 +26,8 @@ public:
     void draw(sf::RenderWindow& window);
     const sf::Vector2f getPosition() const;
     void setPosition(const sf::Vector2f pos);
-    void reduceVelocityX(double velocityX);
-    void reduceVelocityY(double velocityY);
-    const sf::Vector2f getVelocity() const;
+    void setVelocityX(double newVelX);
+    void setVelocityY(double newVelY);
+    float getVelocityX() const;
+    float getVelocityY() const;
 };

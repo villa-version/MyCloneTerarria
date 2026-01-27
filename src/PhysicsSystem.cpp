@@ -7,10 +7,8 @@
 
 void PhysicsSystem::update(Player& player) {
 
-    player.reduceVelocityX(friction);
+    float velX = player.getVelocityX();
+    float imparedVelX = velX * friction;
+    player.setVelocityX(imparedVelX);
 
-    //auto playerPos = player.getPosition();
-    //if (playerPos.y < 800) {
-    //    player.reduceVelocityY(gravity * GameTime::deltaTimeSeconds);
-    //}
 }
