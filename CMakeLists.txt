@@ -1,59 +1,45 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.10)
+project(MyCloneTerarria)
 
-project(MyCloneTerraria LANGUAGES CXX)
-
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(Qt5 REQUIRED COMPONENTS Core Widgets)
+# Find SFML
+set(SFML_STATIC_LIBRARIES TRUE)
+find_package(SFML 2.5 COMPONENTS graphics window system)
 
-# Добавляем исходники и заголовки
-set(SOURCES
-    src/main.cpp
-	src/App.cpp
-	src/World.cpp
-	src/player.cpp
-	src/TextureManager.cpp
-	src/Background.cpp
-	src/Camera.cpp
-	src/InputManager.cpp
-	src/PhysicsSystem.cpp
-	src/GameTime.cpp
-)
+if(SFML_FOUND)
+    # Use system SFML
+    include_directories(${SFML_INCLUDE_DIR})
+else()
+    # Fallback for Windows with custom SFML path
+    if(WIN32)
+        set(SFML_INCLUDE_DIR "D:/SFML-2.5.1/include")
+        set(SFML_LIBRARIES sfml-graphics-s sfml-window-s sfml-system-s sfml-main opengl32 gdi32 winmm)
+        set(SFML_LIBRARY_DIR "D:/SFML-2.5.1/lib")
+        include_directories(${SFML_INCLUDE_DIR})
+        link_directories(${SFML_LIBRARY_DIR})
+        add_definitions(-DSFML_STATIC)
+    else()
+        message(FATAL_ERROR "SFML not found. Please install SFML.")
+    endif()
+endif()
 
-set(HEADERS
-    headers/App.h
-	headers/config.h
-	headers/world.h
-	headers/player.h
-	headers/Vector2.h
-	headers/Background.h
-	headers/TextureManager.h
-	headers/Transform.h
-	headers/Camera.h
-	headers/InputManager.h
-	headers/PhysicsBody.h
-	headers/PhysicsSystem.h
-	headers/GameTime.h
-)
+# Include directories
+include_directories(headers)
 
-# Создаём исполняемый файл
-add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
+# Source files
+file(GLOB SOURCES "src/*.cpp")
 
-# Добавляем include для заголовков
-target_include_directories(${PROJECT_NAME} PRIVATE headers)
+# Executable
+add_executable(${PROJECT_NAME} WIN32 ${SOURCES})
 
-# Линкуем Qt
-target_link_libraries(${PROJECT_NAME} Qt5::Core Qt5::Widgets)
+# Link SFML
+if(SFML_FOUND)
+    target_link_libraries(${PROJECT_NAME} sfml-graphics sfml-window sfml-system)
+else()
+    target_link_libraries(${PROJECT_NAME} ${SFML_LIBRARIES})
+endif()
 
-set(SFML_DIR "D:/SFML-2.5.1/lib/cmake/SFML")
-
-find_package(SFML 2.5 COMPONENTS graphics window system REQUIRED)
-
-target_link_libraries(${PROJECT_NAME}
-    sfml-graphics
-    sfml-window
-    sfml-system
-	sfml-audio
-)
-
+# Copy assets to build directory
+file(COPY assets DESTINATION ${CMAKE_BINARY_DIR})
