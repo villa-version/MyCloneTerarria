@@ -1,0 +1,68 @@
+name: Build
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential cmake qtbase5-dev libqt5widgets5 libsfml-dev
+
+    - name: Configure CMake
+      run: |
+        mkdir build
+        cd build
+        cmake ..
+
+    - name: Build
+      run: |
+        cd build
+        make
+
+    - name: Verify executable
+      run: |
+        ls -lh build/MyCloneTerraria
+        file build/MyCloneTerraria
+
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v3
+      with:
+        version: '5.15.2'
+        arch: 'win64_mingw81'
+
+    - name: Install SFML
+      run: |
+        choco install sfml -y
+
+    - name: Configure CMake
+      run: |
+        mkdir build
+        cd build
+        cmake .. -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release
+
+    - name: Build
+      run: |
+        cd build
+        cmake --build .
+
+    - name: Verify executable
+      run: |
+        dir build\MyCloneTerraria.exe

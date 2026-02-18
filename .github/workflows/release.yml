@@ -1,0 +1,159 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'  # Triggers on version tags like v1.0.0, v2.1.3, etc.
+  workflow_dispatch:  # Allows manual triggering from GitHub UI
+    inputs:
+      version:
+        description: 'Version number (e.g., 1.0.0)'
+        required: true
+        type: string
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+      version: ${{ steps.get_version.outputs.version }}
+
+    steps:
+    - name: Checkout code
+      if: github.event_name == 'workflow_dispatch'
+      uses: actions/checkout@v4
+
+    - name: Create and push tag
+      if: github.event_name == 'workflow_dispatch'
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git tag -a "v${{ inputs.version }}" -m "Release v${{ inputs.version }}"
+        git push origin "v${{ inputs.version }}"
+
+    - name: Get version
+      id: get_version
+      run: |
+        if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+          echo "version=${{ inputs.version }}" >> $GITHUB_OUTPUT
+          echo "tag_name=v${{ inputs.version }}" >> $GITHUB_OUTPUT
+        else
+          echo "version=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+          echo "tag_name=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ steps.get_version.outputs.tag_name }}
+        release_name: MyCloneTerraria ${{ steps.get_version.outputs.tag_name }}
+        draft: false
+        prerelease: false
+        body: |
+          ## MyCloneTerraria ${{ github.ref_name }}
+
+          ### Downloads
+          - **Linux**: `MyCloneTerraria-linux-x64.tar.gz`
+          - **Windows**: `MyCloneTerraria-windows-x64.zip`
+
+          ### Installation
+
+          **Linux:**
+          ```bash
+          tar -xzf MyCloneTerraria-linux-x64.tar.gz
+          cd MyCloneTerraria
+          ./MyCloneTerraria
+          ```
+
+          **Windows:**
+          1. Extract `MyCloneTerraria-windows-x64.zip`
+          2. Run `MyCloneTerraria.exe`
+
+          ### Changes
+          See commits since last release for details.
+
+  build-linux:
+    needs: create-release
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential cmake qtbase5-dev libqt5widgets5 libsfml-dev
+
+    - name: Build
+      run: |
+        mkdir build
+        cd build
+        cmake .. -DCMAKE_BUILD_TYPE=Release
+        make
+
+    - name: Package
+      run: |
+        mkdir -p package/MyCloneTerraria
+        cp build/MyCloneTerraria package/MyCloneTerraria/
+        cp -r assets package/MyCloneTerraria/
+        cp README.md package/MyCloneTerraria/ 2>/dev/null || echo "No README found"
+        cd package
+        tar -czf MyCloneTerraria-linux-x64.tar.gz MyCloneTerraria/
+
+    - name: Upload Linux Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ needs.create-release.outputs.upload_url }}
+        asset_path: ./package/MyCloneTerraria-linux-x64.tar.gz
+        asset_name: MyCloneTerraria-linux-x64.tar.gz
+        asset_content_type: application/gzip
+
+  build-windows:
+    needs: create-release
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v3
+      with:
+        version: '5.15.2'
+        arch: 'win64_mingw81'
+
+    - name: Install SFML
+      run: |
+        choco install sfml -y
+
+    - name: Build
+      run: |
+        mkdir build
+        cd build
+        cmake .. -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release
+        cmake --build .
+
+    - name: Package
+      run: |
+        mkdir package\MyCloneTerraria
+        copy build\MyCloneTerraria.exe package\MyCloneTerraria\
+        xcopy assets package\MyCloneTerraria\assets\ /E /I
+        if exist README.md copy README.md package\MyCloneTerraria\
+        cd package
+        powershell Compress-Archive -Path MyCloneTerraria -DestinationPath MyCloneTerraria-windows-x64.zip
+
+    - name: Upload Windows Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ needs.create-release.outputs.upload_url }}
+        asset_path: ./package/MyCloneTerraria-windows-x64.zip
+        asset_name: MyCloneTerraria-windows-x64.zip
+        asset_content_type: application/zip
