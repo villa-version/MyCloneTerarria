@@ -1,0 +1,81 @@
+name: Bump Version
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump_type:
+        description: 'Version bump type'
+        required: true
+        type: choice
+        options:
+          - patch  # 1.0.0 -> 1.0.1
+          - minor  # 1.0.0 -> 1.1.0
+          - major  # 1.0.0 -> 2.0.0
+
+jobs:
+  bump-and-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Fetch all history for tags
+
+    - name: Get latest tag
+      id: get_latest_tag
+      run: |
+        # Get the latest tag, or use v0.0.0 if no tags exist
+        LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+        echo "latest_tag=$LATEST_TAG" >> $GITHUB_OUTPUT
+        echo "Latest tag: $LATEST_TAG"
+
+    - name: Calculate new version
+      id: new_version
+      run: |
+        LATEST_TAG="${{ steps.get_latest_tag.outputs.latest_tag }}"
+        # Remove 'v' prefix
+        VERSION=${LATEST_TAG#v}
+
+        # Split version into major.minor.patch
+        IFS='.' read -r -a VERSION_PARTS <<< "$VERSION"
+        MAJOR=${VERSION_PARTS[0]:-0}
+        MINOR=${VERSION_PARTS[1]:-0}
+        PATCH=${VERSION_PARTS[2]:-0}
+
+        # Bump version based on input
+        case "${{ inputs.bump_type }}" in
+          major)
+            MAJOR=$((MAJOR + 1))
+            MINOR=0
+            PATCH=0
+            ;;
+          minor)
+            MINOR=$((MINOR + 1))
+            PATCH=0
+            ;;
+          patch)
+            PATCH=$((PATCH + 1))
+            ;;
+        esac
+
+        NEW_VERSION="$MAJOR.$MINOR.$PATCH"
+        NEW_TAG="v$NEW_VERSION"
+
+        echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+        echo "new_tag=$NEW_TAG" >> $GITHUB_OUTPUT
+        echo "Bumping from $LATEST_TAG to $NEW_TAG (${{ inputs.bump_type }})"
+
+    - name: Create and push tag
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git tag -a "${{ steps.new_version.outputs.new_tag }}" -m "Release ${{ steps.new_version.outputs.new_tag }}"
+        git push origin "${{ steps.new_version.outputs.new_tag }}"
+
+    - name: Trigger release workflow
+      run: |
+        echo "✅ Tag ${{ steps.new_version.outputs.new_tag }} created and pushed!"
+        echo "The Release workflow will automatically start building and packaging."
