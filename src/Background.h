@@ -3,12 +3,13 @@
 #include <SFML/Graphics.hpp>
 #include <Transform.h>
 #include <TextureManager.h>
+#include <optional>
 
 
 class Background {
     Transform transform;
     TextureManager& textureManager;
-    sf::Sprite sprite;
+    std::optional<sf::Sprite> sprite;
 
 public:
     Background(const Transform& transform, TextureManager& textureManager);

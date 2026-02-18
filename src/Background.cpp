@@ -12,12 +12,12 @@ void Background::init() {
 
 void Background::setTexture() {
     auto& texture = textureManager.get("background");
-    sprite.setTexture(texture);
     auto size = texture.getSize();
-    sprite.setScale(transform.size.x / size.x, transform.size.y / size.y);
-    sprite.setPosition(transform.position.x, transform.position.y);
+    sprite.emplace(texture);
+    sprite->setScale({transform.size.x / size.x, transform.size.y / size.y});
+    sprite->setPosition({transform.position.x, transform.position.y});
 }
 
 void Background::draw(sf::RenderWindow& window) {
-    window.draw(sprite);
+    if (sprite) window.draw(*sprite);
 }

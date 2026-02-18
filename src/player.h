@@ -8,12 +8,13 @@
 #include <InputManager.h>
 #include <PhysicsBody.h>
 #include <Vector2.h>
+#include <optional>
 
 
 class Player {
     Transform transform;
     TextureManager& textureManager;
-    sf::Sprite sprite;
+    std::optional<sf::Sprite> sprite;
     PhysicsBody physics;
 
 public:

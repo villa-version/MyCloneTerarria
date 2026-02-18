@@ -1,45 +1,67 @@
-cmake_minimum_required(VERSION 3.10)
-project(MyCloneTerarria)
+cmake_minimum_required(VERSION 3.11)
+
+project(MyCloneTerraria LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Find SFML
-set(SFML_STATIC_LIBRARIES TRUE)
-find_package(SFML 2.5 COMPONENTS graphics window system)
 
-if(SFML_FOUND)
-    # Use system SFML
-    include_directories(${SFML_INCLUDE_DIR})
-else()
-    # Fallback for Windows with custom SFML path
-    if(WIN32)
-        set(SFML_INCLUDE_DIR "D:/SFML-2.5.1/include")
-        set(SFML_LIBRARIES sfml-graphics-s sfml-window-s sfml-system-s sfml-main opengl32 gdi32 winmm)
-        set(SFML_LIBRARY_DIR "D:/SFML-2.5.1/lib")
-        include_directories(${SFML_INCLUDE_DIR})
-        link_directories(${SFML_LIBRARY_DIR})
-        add_definitions(-DSFML_STATIC)
-    else()
-        message(FATAL_ERROR "SFML not found. Please install SFML.")
-    endif()
-endif()
+# Добавляем исходники и заголовки
+set(SOURCES
+    src/main.cpp
+	src/App.cpp
+	src/World.cpp
+	src/player.cpp
+	src/TextureManager.cpp
+	src/Background.cpp
+	src/Camera.cpp
+	src/InputManager.cpp
+	src/PhysicsSystem.cpp
+	src/GameTime.cpp
+)
 
-# Include directories
-include_directories(headers)
+set(HEADERS
+    src/App.h
+    src/config.h
+    src/World.h
+    src/player.h
+    src/Vector2.h
+    src/Background.h
+    src/TextureManager.h
+    src/Transform.h
+    src/Camera.h
+    src/InputManager.h
+    src/PhysicsBody.h
+    src/PhysicsSystem.h
+    src/GameTime.h
+)
 
-# Source files
-file(GLOB SOURCES "src/*.cpp")
+# Создаём исполняемый файл
+add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
 
-# Executable
-add_executable(${PROJECT_NAME} WIN32 ${SOURCES})
+# Добавляем include для заголовков
+target_include_directories(${PROJECT_NAME} PRIVATE src)
 
-# Link SFML
-if(SFML_FOUND)
-    target_link_libraries(${PROJECT_NAME} sfml-graphics sfml-window sfml-system)
-else()
-    target_link_libraries(${PROJECT_NAME} ${SFML_LIBRARIES})
-endif()
 
-# Copy assets to build directory
-file(COPY assets DESTINATION ${CMAKE_BINARY_DIR})
+set(FETCHCONTENT_BASE_DIR "${CMAKE_SOURCE_DIR}/.deps" CACHE PATH "" FORCE)
+
+include(FetchContent)
+FetchContent_Declare(SFML
+    GIT_REPOSITORY https://github.com/SFML/SFML.git
+    GIT_TAG 3.0.2
+    GIT_SHALLOW ON
+)
+FetchContent_MakeAvailable(SFML)
+
+target_link_libraries(${PROJECT_NAME}
+    SFML::Graphics
+    SFML::Window
+    SFML::System
+    SFML::Audio
+)
+
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_SOURCE_DIR}/assets $<TARGET_FILE_DIR:${PROJECT_NAME}>/assets
+)
+

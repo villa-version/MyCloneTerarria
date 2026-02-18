@@ -3,7 +3,7 @@
 
 
 void InputManager::update() {
-    left = sf::Keyboard::isKeyPressed(sf::Keyboard::A);
-    right = sf::Keyboard::isKeyPressed(sf::Keyboard::D);
-    jump = sf::Keyboard::isKeyPressed(sf::Keyboard::W);
+    left = sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A);
+    right = sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D);
+    jump = sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W);
 }

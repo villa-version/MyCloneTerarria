@@ -1,7 +1,7 @@
 #include <App.h>
 
 
-App::App() : window(sf::VideoMode(Config::SCREEN_WIDTH, Config::SCREEN_HEIGHT), "CloneTerraria"),
+App::App() : window(sf::VideoMode({Config::SCREEN_WIDTH, Config::SCREEN_HEIGHT}), "MyCloneTerarria"),
     world(textureManager) {}
 
 void App::init() {
@@ -11,8 +11,8 @@ void App::init() {
 }
 
 void App::loadAllTextures() {
-    textureManager.load("background", "E:/Docs/Docs/MyCloneTerraria/assets/textures/background.jpg");
-    textureManager.load("player", "E:/Docs/Docs/MyCloneTerraria/assets/textures/player.png");
+    textureManager.load("background", "assets/textures/background.jpg");
+    textureManager.load("player", "assets/textures/player.png");
 }
 
 
@@ -20,10 +20,9 @@ int App::run() {
     while (window.isOpen())
     {
 
-        sf::Event event;
-        while (window.pollEvent(event))
+        while (const std::optional<sf::Event> event = window.pollEvent())
         {
-            if (event.type == sf::Event::Closed)
+            if (event->is<sf::Event::Closed>())
                 window.close();
         }
 

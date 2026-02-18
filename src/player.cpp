@@ -19,11 +19,10 @@ void Player::init() {
 
 void Player::setTexture() {
     auto& texture = textureManager.get("player");
-    sprite.setTexture(texture);
     auto size = texture.getSize();
-    sprite.setScale(transform.size.x / size.x, transform.size.y / size.y);
-    sprite.setPosition(transform.position.x, transform.position.y);
-
+    sprite.emplace(texture);
+    sprite->setScale({transform.size.x / size.x, transform.size.y / size.y});
+    sprite->setPosition({transform.position.x, transform.position.y});
 }
 
 void Player::update(InputManager& input) {
@@ -35,7 +34,7 @@ void Player::update(InputManager& input) {
     transform.position.x += physics.velocity.x * GameTime::deltaTimeSeconds;
     transform.position.y += physics.velocity.y * GameTime::deltaTimeSeconds;
 
-    sprite.setPosition(transform.position.x, transform.position.y);
+    sprite->setPosition({transform.position.x, transform.position.y});
 
 }
 
@@ -56,7 +55,7 @@ void Player::control(InputManager& input) {
 }
 
 void Player::draw(sf::RenderWindow& window) {
-    window.draw(sprite);
+    if (sprite) window.draw(*sprite);
 }
 
 
@@ -66,7 +65,7 @@ const sf::Vector2f Player::getPosition() const {
 
 void Player::setPosition(const sf::Vector2f newPos) {
     transform.position.x = newPos.x;
-    transform.position.x = newPos.y;
+    transform.position.y = newPos.y;
 }
 
 void Player::setVelocityX(double newVelX) {
