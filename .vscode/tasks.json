@@ -1,0 +1,44 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build-deps",
+            "detail": "Build SFML once (run this first on a new machine)",
+            "type": "shell",
+            "command": "bash scripts/build-deps.sh",
+            "windows": { "command": "pwsh scripts\\build-deps.ps1" },
+            "group": "build",
+            "presentation": { "reveal": "always", "panel": "shared" }
+        },
+        {
+            "label": "build",
+            "detail": "Build the game",
+            "type": "shell",
+            "command": "cmake -B build -S . -DCMAKE_BUILD_TYPE=Debug && cmake --build build --parallel",
+            "windows": { "command": "cmake -B build -S . && cmake --build build --config Debug --parallel" },
+            "group": { "kind": "build", "isDefault": true },
+            "presentation": { "reveal": "always", "panel": "shared" },
+            "problemMatcher": "$gcc"
+        },
+        {
+            "label": "run",
+            "detail": "Build and run the game",
+            "type": "shell",
+            "command": "cd build && ./MyCloneTerraria",
+            "windows": { "command": "cd build\\Debug && .\\MyCloneTerraria.exe" },
+            "dependsOn": "build",
+            "group": "test",
+            "presentation": { "reveal": "always", "panel": "shared" }
+        },
+        {
+            "label": "dev",
+            "detail": "Watch for changes, auto-rebuild and restart",
+            "type": "shell",
+            "command": "bash scripts/dev.sh",
+            "windows": { "command": "pwsh scripts\\dev.ps1" },
+            "group": "test",
+            "presentation": { "reveal": "always", "panel": "shared" },
+            "isBackground": true
+        }
+    ]
+}

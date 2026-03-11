@@ -1,31 +1,32 @@
-CXX = g++
-CXXFLAGS = -std=c++17 -g -fdiagnostics-color=always
-LDFLAGS =
+BUILD_DIR := build
+NPROC     := $(shell nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo 4)
 
-# Detect OS
 ifeq ($(OS),Windows_NT)
-    CXXFLAGS += -ID:/SFML-2.5.1/include -Iheaders -DSFML_STATIC
-    LDFLAGS += -LD:/SFML-2.5.1/lib -lsfml-graphics-s -lsfml-window-s -lsfml-system-s -lsfml-main -lopengl32 -lgdi32 -lwinmm
-    EXECUTABLE = build/main.exe
+    BUILD_CONFIG := Release
+    RUN_CMD      := cd $(BUILD_DIR)/Release && MyCloneTerraria.exe
 else
-    CXXFLAGS += -Iheaders
-    LDFLAGS += -lsfml-graphics -lsfml-window -lsfml-system
-    EXECUTABLE = build/main
+    BUILD_CONFIG := Debug
+    RUN_CMD      := cd $(BUILD_DIR) && ./MyCloneTerraria
 endif
 
-SOURCES = $(wildcard src/*.cpp)
-OBJECTS = $(SOURCES:.cpp=.o)
+.DEFAULT_GOAL := build
 
-all: $(EXECUTABLE)
+deps:
+	chmod +x scripts/build-deps.sh
+	./scripts/build-deps.sh
 
-$(EXECUTABLE): $(OBJECTS)
-	@mkdir -p build
-	$(CXX) $(OBJECTS) -o $@ $(LDFLAGS)
+build:
+	cmake -B $(BUILD_DIR) -S . -DCMAKE_BUILD_TYPE=$(BUILD_CONFIG)
+	cmake --build $(BUILD_DIR) --parallel $(NPROC) --config $(BUILD_CONFIG)
 
-%.o: %.cpp
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+run: build
+	$(RUN_CMD)
+
+dev:
+	chmod +x scripts/dev.sh
+	./scripts/dev.sh
 
 clean:
-	rm -f $(OBJECTS) $(EXECUTABLE)
+	rm -rf $(BUILD_DIR)
 
-.PHONY: all clean
+.PHONY: deps build run dev clean

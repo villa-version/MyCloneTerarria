@@ -2,55 +2,65 @@
 
 A Terraria-inspired 2D game built with C++ and SFML 3.
 
-> SFML 3.0.2 is downloaded and compiled automatically on the first build — no manual installation needed.
+## Getting Started
 
-## Windows
+### Prerequisites
 
-**Requirements:** [Visual Studio 2017+](https://visualstudio.microsoft.com/) (with *Desktop development with C++* workload) or [MinGW-w64 7+](https://www.mingw-w64.org/), [CMake 3.11+](https://cmake.org/download/), [Git 2.0+](https://git-scm.com/)
+| Platform | Requirements |
+|----------|-------------|
+| **Windows** | [Visual Studio 2017+](https://visualstudio.microsoft.com/) (with *Desktop development with C++*) or [MinGW-w64](https://www.mingw-w64.org/), [CMake 3.11+](https://cmake.org/download/), [Git 2.0+](https://git-scm.com/) |
+| **Linux (Arch)** | `sudo pacman -S cmake base-devel git` |
+| **Linux (Ubuntu/Debian)** | `sudo apt install cmake build-essential git libx11-dev libxrandr-dev libxcursor-dev libxi-dev libudev-dev libgl-dev libfreetype-dev libopenal-dev libflac-dev libvorbis-dev` |
+| **macOS** | `xcode-select --install && brew install cmake git` |
 
-```cmd
+### Build
+
+**1. Clone the repo**
+```bash
 git clone https://github.com/villa-version/MyCloneTerarria.git
 cd MyCloneTerarria
-cmake -B build
+```
+
+**2. Build SFML once** (takes a few minutes, only needed once per machine)
+
+```bash
+# Linux / macOS
+make deps
+
+# Windows (PowerShell)
+pwsh scripts/build-deps.ps1
+```
+
+**3. Build and run the game**
+
+```bash
+# Linux / macOS
+make run
+
+# Windows (PowerShell)
+cmake -B build -S .
 cmake --build build --config Release
 build\Release\MyCloneTerraria.exe
 ```
 
-## Linux
+> After the first `make deps` / `build-deps.ps1`, only your game sources are recompiled on each build — SFML is reused from `.deps/sfml-install/`.
 
-**Requirements:** GCC 7+ or Clang 5+, CMake 3.11+, Git 2.0+
+## Development Workflow
+
+### Auto-rebuild on save (Linux / macOS)
 
 ```bash
-# Arch
-pacman -S cmake base-devel git
-
-# Ubuntu / Debian
-apt install cmake build-essential git
+make dev
 ```
 
-```bash
-git clone https://github.com/villa-version/MyCloneTerarria.git
-cd MyCloneTerarria
-cmake -B build
-cmake --build build
-./build/MyCloneTerraria
-```
+Watches `src/` for changes, rebuilds, and restarts the game automatically.
 
-## macOS
+### Windows tip — faster builds with Ninja
 
-**Requirements:** Xcode Command Line Tools (Clang 5+), CMake 3.11+, Git 2.0+
-
-```bash
-xcode-select --install
-brew install cmake git
-```
-
-```bash
-git clone https://github.com/villa-version/MyCloneTerarria.git
-cd MyCloneTerarria
-cmake -B build
-cmake --build build
-./build/MyCloneTerraria
+```powershell
+cmake -B build -S . -G Ninja -DCMAKE_BUILD_TYPE=Release
+cmake --build build --parallel
+build\MyCloneTerraria.exe
 ```
 
 ## Controls
@@ -65,9 +75,10 @@ cmake --build build
 
 ```
 MyCloneTerraria/
-├── src/           # Source and header files (.cpp / .h)
-├── assets/        # Textures and sounds
-└── CMakeLists.txt # Build configuration
+├── src/            # Source and header files (.cpp / .h)
+├── assets/         # Textures and sounds
+├── scripts/        # build-deps.sh / build-deps.ps1 / dev.sh
+└── CMakeLists.txt  # Build configuration
 ```
 
 ## License

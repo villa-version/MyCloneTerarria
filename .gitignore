@@ -47,7 +47,8 @@ _deps
 *.map
 
 # IDEs
-.vscode/
+.vscode/*
+.cache/
 .idea/
 
 # Visual Studio
