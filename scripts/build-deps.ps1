@@ -19,10 +19,14 @@ if (-not (Test-Path $SfmlSrc)) {
     git clone --depth=1 --branch $SfmlTag https://github.com/SFML/SFML.git $SfmlSrc
 }
 
+Write-Host "Cleaning build directory..."
+Remove-Item -Recurse -Force $SfmlBuild -ErrorAction SilentlyContinue
+
 Write-Host "Building SFML (this happens once)..."
-cmake -B $SfmlBuild -S $SfmlSrc `
+cmake -B "$SfmlBuild" -S "$SfmlSrc" `
+    -G "Visual Studio 17 2022" -A x64 `
     -DCMAKE_BUILD_TYPE=Release `
-    -DCMAKE_INSTALL_PREFIX=$SfmlInstall `
+    "-DCMAKE_INSTALL_PREFIX=$SfmlInstall" `
     -DSFML_BUILD_SHARED_LIBS=OFF `
     -DSFML_BUILD_EXAMPLES=OFF `
     -DSFML_BUILD_TEST_SUITE=OFF
